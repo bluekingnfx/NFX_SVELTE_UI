@@ -57,3 +57,5 @@ export type customErrorComponentType = {
     useCustomErrorComp:false,
     errorText?:string,
 }
+
+export type IconCompSelectorType = Exclude<inBuildTypeAttrType,"text" | "email">

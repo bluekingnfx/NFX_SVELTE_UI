@@ -312,10 +312,10 @@
 <script lang="ts">
 
     /* Library imports */
-    import { createEventDispatcher, onMount } from "svelte";
+    import { createEventDispatcher, onMount,setContext } from "svelte";
 
     /* Type imports */
-    import type { InputValidationOptionsType, inBuildTypeAttrType,InputIconOptionsType, customErrorComponentType } from "../types/TextFieldInputTypes.js";
+    import type { InputValidationOptionsType,InputIconOptionsType, customErrorComponentType } from "../types/TextFieldInputTypes.js";
 
     // Refactored Component parts 
     import debounce from "../../HelperFuncs/funcs/debounce.js";
@@ -324,14 +324,10 @@
     import functionOnInput from "../funcs/functionOnInput.js";
     import IconSectionOfInp from "./IconSectionOfInp.svelte";
 
-    
     //! Props that can be passed to component
     export let labelText = "Enter a value"
 
     export let placeHolder = "Enter a value"
-
-    let CusError = false
-    export {CusError as ShowError}
 
     export let supportingText:string | undefined = undefined
 
@@ -361,6 +357,9 @@
     }
 
     // Variables of internal use
+
+    let CusError = false
+    
     const dispatch = createEventDispatcher()
 
     let labelRef:HTMLLabelElement|undefined|null = undefined
@@ -371,29 +370,84 @@
 
     let parentRef: HTMLDivElement | undefined | null = undefined
 
-    let inBuildTypeAttr:inBuildTypeAttrType = inputValidationOptions.validation && inputValidationOptions.usingCusValidation === false && inputValidationOptions.validator !== undefined ? inputValidationOptions.validator : "text"
-
     let isValid:boolean = false
 
+    let inputRef: HTMLInputElement | undefined | null = undefined
     //! life cycle methods
     onMount(() => {
         labelHeightFromTop = onMountMethod(labelRef)
     })
 
     //! functions 
-    const functionBodyForInp = (e:Event & { 
-        currentTarget: EventTarget & HTMLInputElement
-    }) => {
-        const {CusError:cusErr,valueForInternalAccess:value,validated} = functionOnInput(dispatch,inputValidationOptions,e,CusError,parentRef)
+
+    type EventFromInputType = Event & {
+        currentTarget: EventTarget & HTMLInputElement,
+    }
+
+    const functionBodyForInp:(e:EventFromInputType,currentTarget:HTMLInputElement) => void = debounce((e:EventFromInputType,currentTarget:HTMLInputElement) => {
+        const {CusError:cusErr,valueForInternalAccess:value,validated} = functionOnInput(dispatch,inputValidationOptions,e,CusError,parentRef,currentTarget)
         CusError = cusErr
         valueForInternalAccess = value
         isValid = validated
+    },debounceOptions.debounceTheInput,debounceOptions.delayToDebounce)
+
+    /** 
+        * ## functionToChangeVal
+        * This is a function used with **interactive** - *capable of changing the input* that associated with custom icon component, this is used via named slot="customIconComponent" 
+        * @argument cb **Cb is *callback function* that returns value to attach the returned value to your TextFieldInputComponent which is dispatched to you component eventlistener inputChanged.**
+        * ----
+        * *_Example_:*
+        * ```tsx
+        //componentThatTextFieldInputIsImported.svelte
+        //Import statements...
+        <TextFieldInput 
+            inputValidationOptions={{ 
+                validation: true,
+                usingCusValidation:true, 
+                cusDispatcherEventName:"listenToValueChange", 
+                validationFunc:(val) => (/^[A-Z]+$/).test(val)
+            }}
+            on:listenToValueChange={(e) => {
+                console.log(e.detail)
+            }}
+            inputIconOptions={{
+                customComp:true,
+                iconComp:true,
+	        }}
+        >
+            <svelte:fragment let:functionToChangeVal>
+                <UpperCaseComponent {functionToChange} />
+            </svelte:fragment>
+        </TextFieldInput>
+
+        //UpperCaseComponent.svelte
+        < script>
+            export let functionToChange:((prevVal:string) => string) => void
+            const changeAllToUpperCase = () => {
+                functionToChange((prevVal) => {
+                    return prevVal.toUpperCase()
+                })
+            }
+        </ script>
+        <button on:click={changeAllToUpperCase}>
+            A
+        </button>
+        ```
+    */
+
+    const functionToChangeVal = (cb:(prevVal:string) => string) => {
+        const val = cb(valueForInternalAccess)
+        if(inputRef){
+            inputRef.value = val
+            inputRef.focus()
+            inputRef.dispatchEvent(new Event("input"))
+        }
     }
 
-    const OnInputChange = debounce(functionBodyForInp,debounceOptions.debounceTheInput,debounceOptions.delayToDebounce)
+    setContext("changeVal",functionToChangeVal)
 
     //! reactive statements
-    //$:console.log(labelHeightFromTop)
+    $:console.log(valueForInternalAccess)
 </script>
 
 
@@ -402,8 +456,10 @@
 
 <div class="parentContainer" style="
     height:var(--height-of-Input,70px);
-    padding-left: {inputIconOptions.iconComp === true && inputIconOptions.iconPosition === "left" ? "0px" : "20px"}
-" bind:this={parentRef} class:parentContainerOnPosition={inputIconOptions.iconComp === true && inputIconOptions.iconPosition === "right"} id="NFX_Text_Input_ID" >
+    padding-left: {inputIconOptions.iconComp === true && (inputIconOptions.iconPosition === "left" || inputIconOptions.iconPosition === undefined) ? "0px" : "20px"};
+    flex-flow: {inputIconOptions.iconComp === true && (inputIconOptions.iconPosition === "left" || inputIconOptions.iconPosition === undefined) ?  "row wrap" : "row-reverse nowrap"}
+" bind:this={parentRef} 
+id="NFX_Text_Input_ID" >
 
     {#if inputIconOptions.iconComp === true}
         <IconSectionOfInp 
@@ -411,7 +467,9 @@
             inputValidationOptions={inputValidationOptions}
             isValid={isValid}
         >
-            <slot name="customIconComponent" slot="IconComponent"/>
+            <slot name="customIconComponent" slot="IconComponent" functionToChangeVal={functionToChangeVal}>
+                Icon Fallback
+            </slot>
         </IconSectionOfInp>
     {/if}
 
@@ -431,6 +489,7 @@
         </label>
     
         <input
+            bind:this={inputRef}
             class="mainInput" 
             use:inputEvents={{
                 CusError,
@@ -440,18 +499,18 @@
                 valueForInternalAccess,
                 parentRef
             }}
-            on:input={OnInputChange} 
-            type={inBuildTypeAttr}
+            on:input={(e) => {functionBodyForInp(e,e.currentTarget)}} 
+            type="text"
             required={requiredField}
             readonly={readOnlyField}
         />
     
     </div>
 </div>
-{#if inputValidationOptions.validation === true && CusError && valueForInternalAccess.length > 0}
+{#if inputValidationOptions.validation === true && CusError === true && valueForInternalAccess.length > 0}
     {#if customErrorCompOptions.useCustomErrorComp === true}
         <slot name="cusErrorComponent">
-            Chose customElement Error Component (fallback)
+            Chose Custom Error Component (fallback)
         </slot>
     {:else}
         <div class="supportingText supportingTextError">
@@ -481,11 +540,9 @@
         background-color: rgba(255, 255, 255, 0.089);
         transition: border 0.2s linear;
         padding: 0px 0px 0px 20px;
+        margin-bottom: 10px;
     }
 
-    .parentContainerOnPosition{
-        flex-flow: row-reverse nowrap;
-    }
 
     .parentContainer:hover{
         border-bottom: 2px solid rgb(252, 252, 252);

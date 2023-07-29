@@ -11,13 +11,15 @@ const functionOnInput = (
         currentTarget: HTMLInputElement;
     },
     showError:boolean,
-    parentRef: HTMLDivElement | null | undefined
+    parentRef: HTMLDivElement | null | undefined,
+    currentTarget:HTMLInputElement
 ):{
     valueForInternalAccess: string;
     CusError: boolean;
     validated:boolean;
 } => {
-    const valueForInternalAccess = e.currentTarget.value
+
+    const valueForInternalAccess = currentTarget.value
     
     const eventName = inputValidationOptions.cusDispatcherEventName ?? "inputChanged"
 
@@ -26,16 +28,16 @@ const functionOnInput = (
     if(inputValidationOptions.validation === true){
         if(inputValidationOptions.usingCusValidation === true){
 
-            validated = inputValidationOptions.validationFunc(e.currentTarget.value)
+            validated = inputValidationOptions.validationFunc(valueForInternalAccess)
     
         }else{
-            validated = RegexForValidator.Validate(inputValidationOptions.validator,e.currentTarget.value,inputValidationOptions.RegexForValidation)
+            validated = RegexForValidator.Validate(inputValidationOptions.validator,valueForInternalAccess,inputValidationOptions.RegexForValidation)
         }
     }else{
         validated = true
     }
 
-    if(validated === false && e.currentTarget.value.length > 0){
+    if(validated === false && valueForInternalAccess.length > 0){
         showError = true
         if(parentRef !== null && parentRef !== undefined){parentRef.style.borderBottom = "2px solid #ff2828"}
     }else{
@@ -44,7 +46,7 @@ const functionOnInput = (
     }
 
     dispatch(eventName,{
-        value: inputValidationOptions.giveBackEventObj === true ? e : e.currentTarget.value,
+        value: inputValidationOptions.giveBackEventObj === true ? e : valueForInternalAccess,
         isValid: validated
     })
 

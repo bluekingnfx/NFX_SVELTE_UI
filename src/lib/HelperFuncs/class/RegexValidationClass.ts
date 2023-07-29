@@ -8,11 +8,11 @@ class RegexForValidator{
     }
 
     public static emailChecker(value:string,RegexForValidation?:RegExp):boolean{
-        return this.validate(RegexForValidation ?? /^([A-Za-z_]([\w\d_.!#$%&'*+\-/=?^_`{|~](?!\.\.)){2,64})@([A-Za-z0-9.-](?!\.\.)){2,250}\.(?!\.)[A-Za-z]{2,6}/,value)
+        return this.validate(RegexForValidation ?? /^((?!.*\.\.)[\w._+-]{2,64})@((?!.*\.\.)[A-Za-z0-9.-]{2,250})\.[A-Za-z]{2,6}$/,value)
     }
 
     public static phoneChecker(value:string,RegexForValidation?:RegExp):boolean{
-        return this.validate(RegexForValidation ?? /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/,value)
+        return this.validate(RegexForValidation ?? /^(\+\d{1,4}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/,value)
     }
 
     public static urlChecker(value:string,RegexForValidation?:RegExp):boolean{
