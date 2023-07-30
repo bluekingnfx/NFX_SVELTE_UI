@@ -1,4 +1,4 @@
-export type inBuildTypeAttrType = "email" | "password" | "text" | "number" | "url" | "tel"
+export type inBuildTypeAttrType = "email" | "password" | "text" | "number" | "url" | "tel" | "syncWithValidator"
 
 
 export interface MandatoryErrOptions{
@@ -8,10 +8,12 @@ export interface MandatoryErrOptions{
     giveBackEventObj?:boolean
 }
 
+
+export type ValidatorType = Exclude<inBuildTypeAttrType, "syncWithValidator" | "text">
 export interface InBuiltOptions extends MandatoryErrOptions{
     validation:true,
     usingCusValidation: false,
-    validator: "email" | "tel" | "password" | "number" | "url" ,
+    validator: ValidatorType,
     RegexForValidation?: RegExp
 }
 
@@ -47,6 +49,19 @@ export type InputIconOptionsType = IconCustomCompType | InputIconOptionsInBuiltT
     iconComp:false
 }
 
+export type SupportingTextOptions = {
+    customComponent: true,
+} | {
+    customComponent:false,
+    text:string
+} | undefined
+
+
+export type EventFromInputType = Event & {
+    currentTarget: EventTarget & HTMLInputElement,
+}
+
+
 //! IconSectionOfInp
 export type IconSectionOfInpOptionsType = IconCustomCompType | InputIconOptionsInBuiltType
 
@@ -58,4 +73,4 @@ export type customErrorComponentType = {
     errorText?:string,
 }
 
-export type IconCompSelectorType = Exclude<inBuildTypeAttrType,"text" | "email">
+export type IconCompSelectorType = Exclude<inBuildTypeAttrType,"text" | "email" | "syncWithValidator">

@@ -57,3 +57,18 @@ describe("phoneNumberRegexPattern",() => {
 
     itClauseBoilerPlate("Valid phone number with country code with space","+91 999 444 9999",true,"tel")
 })
+
+describe("PasswordFromRegexValidator",() => {
+
+    itClauseBoilerPlate("Valid password pattern","@dUmmyPass123",true,"password")
+
+    itClauseBoilerPlate("Does not match requirement of at least one upper case letter","dummy@123",false,"password")
+
+    itClauseBoilerPlate("Does not match requirement of at least one lower case letter","DUMMY@123",false,"password")
+
+    itClauseBoilerPlate("Does not match requirement of at least one number","#$@!@u#!@A#!",false,"password")
+
+    itClauseBoilerPlate("Does not match the  requirement of being 8 characters in length","#$@Au!",false,"password")
+
+    itClauseBoilerPlate("Matches one more character type","!@SDsd12",true,"password")
+})

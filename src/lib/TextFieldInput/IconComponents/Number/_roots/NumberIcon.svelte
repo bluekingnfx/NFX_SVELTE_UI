@@ -33,6 +33,7 @@
         display:flex;
         flex-flow: column nowrap;
         justify-content: center;
+        cursor: pointer;
     }
 
     .icon{

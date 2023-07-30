@@ -45,7 +45,10 @@
 	customErrorCompOptions={{
 		useCustomErrorComp:true,
 	}}
-	supportingText="Uppercase"
+	supportingText={{
+		customComponent:false,
+		text:'Upper case.'
+	}}
 	inputIconOptions={{
 		customComp:true,
 		iconComp:true,
@@ -70,3 +73,27 @@
 		<mark style="color:#0e00ff">This highlighted purple color error component</mark>
 	</div>
 </TextFieldInput>
+
+
+<TextFieldInput 
+	labelText="Enter your password"
+	placeHolder="ex:yourPassword@123"
+	inputValidationOptions={{
+		usingCusValidation:false,
+		validation:true,
+		validator:"password"
+	}}
+	supportingText={{
+		customComponent:false,
+		text:"Required"
+	}}
+	customErrorCompOptions={{
+		useCustomErrorComp:false,
+		errorText:"Please enter a valid password"
+	}}
+	inputIconOptions={{
+		customComp:false,
+		iconComp:true,
+		iconPosition:"right",
+	}}
+/>

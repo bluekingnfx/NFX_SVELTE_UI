@@ -37,16 +37,74 @@
     ```
     placeHolder **_(optional)_** attribute that can be used to show example how the input can be used (just a use case.)
 
+    **typeOfYourInput**
+    ```ts
+        type:"number" | "email" | "password" | "text" | "url" | "tel" | "syncWithValidator"
+
+        // if you use component built validator 
+        export let typeOfYourInput = "syncWithValidator" 
+
+        // if you use custom Validator func it will be 
+        export let typeOfYourInput = "text"
+    ```
+
+    typeOfYourInput **_(optional)** is alias of type attribute of HTMLInputElement but with restrictions. (sync is special not a type)
+    
+    - Component will not restrict you from adding value to inputValidations.validator different from this prop, its upto your experiment. 
+    - **I strongly recommend if you going to use component 
+    built validation leave it default**
+    - If you going to use syncWithValidator with your customValidation function it defaults back to text.
+
+
     **supportingText**
     ```ts
-    type: string | undefined
+    type: {
+        customComponent: true;
+    } | {
+        customComponent: false;
+        text: string;
+    } | undefined
     // default 
     export let supportingText = undefined //Means there is no supporting text
     ```
     supportingText **_(optional)_** is down to the input, that represents characteristic of input.
-    Example:
-    ```jsx
-    <TextField supportingText = "This is a required input" />
+
+    - If chose to do `supportingText.customComponent:true` one must passed named slot (usage down below).
+    
+    -If chose to do `supportingText.customComponent:false` one must passed error text along with it.
+
+    *_Usage_*:
+    ```tsx
+    ✅
+    <TextField supportingText = {customComponent:true}>
+        <FancySupportingText 
+            slot="customSupportingText"
+        />
+    </TextField>
+
+
+
+    <TextField 
+        supportingText={customComponent:false,text:"This is required field."}
+    />
+
+    ❌
+    <TextField supportingText = {customComponent:false,text:'Iam tripping.'}>
+        <FancySupportingText 
+            slot="customSupportingText"
+        />
+    </TextField>
+
+    ```
+
+
+    *_Example_*:
+    ```tsx
+    <TextField supportingText = {customComponent:true}>
+        <FancySupportingText 
+            slot="customSupportingText"
+        />
+    </TextField>
     ```
 
     **debounceOptions**
@@ -315,7 +373,7 @@
     import { createEventDispatcher, onMount,setContext } from "svelte";
 
     /* Type imports */
-    import type { InputValidationOptionsType,InputIconOptionsType, customErrorComponentType } from "../types/TextFieldInputTypes.js";
+    import type { InputValidationOptionsType,InputIconOptionsType, customErrorComponentType, SupportingTextOptions, inBuildTypeAttrType, ValidatorType, EventFromInputType} from "../types/TextFieldInputTypes.js";
 
     // Refactored Component parts 
     import debounce from "../../HelperFuncs/funcs/debounce.js";
@@ -323,13 +381,16 @@
     import onMountMethod from "../lifecycleMethods/onMountMethod.js";
     import functionOnInput from "../funcs/functionOnInput.js";
     import IconSectionOfInp from "./IconSectionOfInp.svelte";
+	import InputTypeDecider from "../funcs/InputTypeDecider.js";
 
     //! Props that can be passed to component
     export let labelText = "Enter a value"
 
     export let placeHolder = "Enter a value"
 
-    export let supportingText:string | undefined = undefined
+    export let supportingText:SupportingTextOptions = undefined
+
+    export let typeOfYourInput:inBuildTypeAttrType = "syncWithValidator"
 
     export let debounceOptions = {
         debounceTheInput: false,
@@ -373,16 +434,17 @@
     let isValid:boolean = false
 
     let inputRef: HTMLInputElement | undefined | null = undefined
+
+
+    const InputType = InputTypeDecider(typeOfYourInput,inputValidationOptions)
+
     //! life cycle methods
     onMount(() => {
         labelHeightFromTop = onMountMethod(labelRef)
     })
 
-    //! functions 
 
-    type EventFromInputType = Event & {
-        currentTarget: EventTarget & HTMLInputElement,
-    }
+    //! functions 
 
     const functionBodyForInp:(e:EventFromInputType,currentTarget:HTMLInputElement) => void = debounce((e:EventFromInputType,currentTarget:HTMLInputElement) => {
         const {CusError:cusErr,valueForInternalAccess:value,validated} = functionOnInput(dispatch,inputValidationOptions,e,CusError,parentRef,currentTarget)
@@ -463,11 +525,17 @@ id="NFX_Text_Input_ID" >
 
     {#if inputIconOptions.iconComp === true}
         <IconSectionOfInp 
-            inputIconOptions={inputIconOptions}
-            inputValidationOptions={inputValidationOptions}
-            isValid={isValid}
+            {inputIconOptions}
+            {inputValidationOptions}
+            {isValid}
+            {inputRef}
+            {InputType}
         >
-            <slot name="customIconComponent" slot="IconComponent" functionToChangeVal={functionToChangeVal}>
+            <slot 
+                name="customIconComponent" 
+                slot="IconComponent" 
+                functionToChangeVal={functionToChangeVal}
+            >
                 Icon Fallback
             </slot>
         </IconSectionOfInp>
@@ -500,7 +568,7 @@ id="NFX_Text_Input_ID" >
                 parentRef
             }}
             on:input={(e) => {functionBodyForInp(e,e.currentTarget)}} 
-            type="text"
+            type={InputType}
             required={requiredField}
             readonly={readOnlyField}
         />
@@ -519,9 +587,13 @@ id="NFX_Text_Input_ID" >
     {/if}
 {:else}
     {#if supportingText !== undefined}
-        <div class='supportingText'>
-            {supportingText}
-        </div>
+        {#if supportingText.customComponent === true}
+            <slot name="customSupportingText">
+                Chose custom supporting text (fallback)
+            </slot>
+        {:else}
+            {supportingText.text}
+        {/if}
     {/if}
 {/if}
 

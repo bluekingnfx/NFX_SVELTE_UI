@@ -25,7 +25,7 @@ class RegexForValidator{
     }
 
     public static passwordChecker(value:string,RegexForValidation?:RegExp):boolean{
-        return this.validate(RegexForValidation ?? /"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$"/,value)
+        return this.validate(RegexForValidation ?? /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/,value)
     }
 
     public static Validate(type:AvailableValidatorType,value:string,CusRegexForValidation?:RegExp):boolean{

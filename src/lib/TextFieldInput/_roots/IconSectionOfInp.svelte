@@ -23,13 +23,19 @@
 
  <script lang="ts">
 	import NumberIcon from "../IconComponents/Number/_roots/NumberIcon.svelte";
-    import type { IconSectionOfInpOptionsType, InputValidationOptionsType,IconCompSelectorType } from "../types/TextFieldInputTypes.js";
+	import PasswordIcon from "../IconComponents/Password/_roots/PasswordIcon.svelte";
+    import type { IconSectionOfInpOptionsType, InputValidationOptionsType,ValidatorType } from "../types/TextFieldInputTypes.js";
 
     export let inputIconOptions:IconSectionOfInpOptionsType
 
     export let inputValidationOptions:InputValidationOptionsType
 
     export let isValid:boolean
+
+    export let inputRef: HTMLInputElement | undefined | null
+
+    export let InputType: "text" | ValidatorType
+    
 
 </script>
 
@@ -50,7 +56,11 @@
     <slot name="IconComponent"/>
     {:else}
         {#if inputValidationOptions.validation === true && inputValidationOptions.usingCusValidation === false && inputValidationOptions.validator !== "email"}
-            <NumberIcon />
+            {#if inputValidationOptions.validator === "number"}
+                <NumberIcon />
+                {:else if inputValidationOptions.validator === "password"}
+                <PasswordIcon {inputRef}/>
+            {/if}
         {/if}
     {/if}
 </div>
