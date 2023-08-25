@@ -18,14 +18,19 @@
 
     **isValid**: if the answer is valid be true.
 
- -->
+-->
 
 
- <script lang="ts">
+<script lang="ts">
+
+    //Refactored Components parts
 	import NumberIcon from "../IconComponents/Number/_roots/NumberIcon.svelte";
 	import PasswordIcon from "../IconComponents/Password/_roots/PasswordIcon.svelte";
-    import type { IconSectionOfInpOptionsType, InputValidationOptionsType,ValidatorType } from "../types/TextFieldInputTypes.js";
+    import type { IconSectionOfInpOptionsType, InputValidationOptionsType } from "../types/TextFieldInputTypes.js";
+    import type {ThemeType} from "../../global/stores/colorPalette.js";
+    import URLIconComponent from "../IconComponents/Url/_roots/URLIconComponent.svelte";
 
+    // Variables for internal use
     export let inputIconOptions:IconSectionOfInpOptionsType
 
     export let inputValidationOptions:InputValidationOptionsType
@@ -33,35 +38,59 @@
     export let isValid:boolean
 
     export let inputRef: HTMLInputElement | undefined | null
-
-    export let InputType: "text" | ValidatorType
     
+    export let theme:ThemeType
 
+    export let darkVersionIconColor:string
+
+    export let lightVersionIconColor:string
 </script>
 
 
 <style>
-    .parentContainer{
-        display:flex;
-        height: 100%;
-        justify-content: center;
-        align-items: center;
-    }
+.parentContainer{
+    display:flex;
+    height: 100%;
+    justify-content: center;
+    align-items: center;
+}
 </style>    
 
-<div class="parentContainer" style="
-    width:{inputIconOptions.widthOfIcon ?? "60px"};
-">
-    {#if inputIconOptions.customComp === true}
-    <slot name="IconComponent"/>
-    {:else}
-        {#if inputValidationOptions.validation === true && inputValidationOptions.usingCusValidation === false && inputValidationOptions.validator !== "email"}
+
+{#if inputIconOptions.customComp === true}
+    <div class="parentContainer" style="
+        width:{inputIconOptions.widthOfIcon ?? "60px"};
+    ">
+        <slot name="IconComponent"/>
+    </div>
+{:else}
+    {#if inputValidationOptions.validation === true && inputValidationOptions.usingCusValidation === false}
+        <div class="parentContainer" style="
+        width:{inputIconOptions.widthOfIcon ?? "60px"};
+        ">
             {#if inputValidationOptions.validator === "number"}
-                <NumberIcon />
+                <NumberIcon 
+                    {theme}
+                    {darkVersionIconColor}
+                    {lightVersionIconColor}
+                />
                 {:else if inputValidationOptions.validator === "password"}
-                <PasswordIcon {inputRef}/>
+                <PasswordIcon 
+                    {inputRef}
+                    {theme}
+                    {darkVersionIconColor}
+                    {lightVersionIconColor}
+                />
+                {:else if inputValidationOptions.validator === "url"}
+                <URLIconComponent 
+                    {inputRef} 
+                    {isValid}
+                    {theme}
+                    {darkVersionIconColor}
+                    {lightVersionIconColor}
+                />
             {/if}
-        {/if}
+        </div>
     {/if}
-</div>
+{/if}
 

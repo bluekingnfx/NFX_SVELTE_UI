@@ -1,11 +1,17 @@
 
 
 <script lang="ts">
+    //import statements
     import EyeClosed from "../resources/EyeClosed.svelte"
     import EyeOpen from "../resources/EyeOpen.svelte"
 
+    //Variables for internal use
     export let inputRef:HTMLInputElement | undefined | null
+    export let theme
+    export let darkVersionIconColor 
+    export let lightVersionIconColor
 
+    //functions
     const ChangeTheTypeOfInput = () => {
         if(inputRef){
             if(inputRef.type === "text"){
@@ -32,12 +38,12 @@
 </style>
 
 
-<button on:click={ChangeTheTypeOfInput}>
+<button on:click={ChangeTheTypeOfInput} aria-label="visible toggler">
     {#if inputRef}
         {#if inputRef.type === "password"}
-            <EyeClosed color={"rgb(205, 205, 205)"}/>
+            <EyeClosed color={theme === "dark" ? darkVersionIconColor : lightVersionIconColor} width={"28px"} height={"28px"}/>
         {:else}
-            <EyeOpen color={"rgb(205, 205, 205)"}/>
+            <EyeOpen color={theme === "dark" ? darkVersionIconColor : lightVersionIconColor} width={"28px"} height={"28px"}/>
         {/if}
     {/if}
 </button>

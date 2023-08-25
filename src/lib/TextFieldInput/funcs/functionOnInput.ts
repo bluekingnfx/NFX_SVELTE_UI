@@ -1,5 +1,5 @@
 import type { EventDispatcher } from "svelte"
-import type { InputValidationOptionsType } from "../types/TextFieldInputTypes.js"
+import type { InputValidationOptionsType, ValidatorType, readonlyOptionsType } from "../types/TextFieldInputTypes.js"
 import RegexForValidator from "../../HelperFuncs/class/RegexValidationClass.js";
 
 
@@ -12,11 +12,15 @@ const functionOnInput = (
     },
     showError:boolean,
     parentRef: HTMLDivElement | null | undefined,
-    currentTarget:HTMLInputElement
+    currentTarget:HTMLInputElement,
+    readOnlyOptions: readonlyOptionsType,
+    errorTextColor:string,
+    textPassedBlueVariantBorder:string
 ):{
     valueForInternalAccess: string;
     CusError: boolean;
     validated:boolean;
+    inputRefType: ValidatorType | "text",
 } => {
 
     const valueForInternalAccess = currentTarget.value
@@ -39,10 +43,10 @@ const functionOnInput = (
 
     if(validated === false && valueForInternalAccess.length > 0){
         showError = true
-        if(parentRef !== null && parentRef !== undefined){parentRef.style.borderBottom = "2px solid #ff2828"}
+        if(parentRef !== null && parentRef !== undefined){parentRef.style.borderBottom = `2px solid ${errorTextColor}`}
     }else{
         showError = false
-        if(parentRef !== null && parentRef !== undefined){parentRef.style.borderBottom = "2px solid #0072E5"}
+        if(parentRef !== null && parentRef !== undefined && readOnlyOptions.readOnlyCondition === false){parentRef.style.borderBottom = `2px solid ${textPassedBlueVariantBorder}`}
     }
 
     dispatch(eventName,{
@@ -50,10 +54,13 @@ const functionOnInput = (
         isValid: validated
     })
 
+    const inputType =  currentTarget.type !== "email" && currentTarget.type !== "number" && currentTarget.type !== "tel" && currentTarget.type !== "url" && currentTarget.type !== "password" ? "text" : currentTarget.type
+
     return {
         valueForInternalAccess,
         CusError:showError,
-        validated
+        validated,
+        inputRefType: inputType
     }
 }
 

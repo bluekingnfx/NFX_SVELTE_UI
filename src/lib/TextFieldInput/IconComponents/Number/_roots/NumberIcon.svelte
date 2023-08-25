@@ -2,9 +2,15 @@
 
 
 <script lang="ts">
+    // lib imports
 	import { getContext } from "svelte";
 
+    //Variables for internal use
+    export let theme
+    export let darkVersionIconColor 
+    export let lightVersionIconColor
 
+    //functions
     const functionToChangeVal:(cb:(prevVal:string,isValid:boolean) => undefined | string) => void = getContext("changeVal")
 
     const changeBy1 = (type:"increment"|"decrement") => {
@@ -49,19 +55,31 @@
         background-color: transparent;
     }
 
+
 </style>
 
-<div class="parentContainer">
-    <button class="icon" on:click={() => {
-        changeBy1("decrement")
-    }}>
+<div  
+    class="parentContainer"
+>
+    <button class="icon" 
+        on:click={() => {
+            changeBy1("decrement")
+        }} 
+        aria-label="Decrement"
+        style="color:{theme === "dark" ? darkVersionIconColor : lightVersionIconColor}"
+    >
         -
     </button>
     <button 
-        class="icon" style="justify-content:flex-start"
+        class="icon"
         on:click={() => {
             changeBy1("increment")
         }}
+        aria-label="increment"
+        style="
+            justify-content:flex-start;
+            color:{theme === "dark" ? darkVersionIconColor : lightVersionIconColor};
+        "
     >
         +
     </button>

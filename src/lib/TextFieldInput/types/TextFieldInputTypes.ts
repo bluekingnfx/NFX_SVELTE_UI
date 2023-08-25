@@ -17,11 +17,12 @@ export interface InBuiltOptions extends MandatoryErrOptions{
     RegexForValidation?: RegExp
 }
 
+export type validationFuncType = (value:string) => boolean
 
 export type InputValidationOptionsType = InBuiltOptions | (MandatoryErrOptions & {
     validation:true,
     usingCusValidation: true,
-    validationFunc:(value:string) => boolean
+    validationFunc:validationFuncType
 }) | {
     validation:false,
     cusDispatcherEventName?: string
@@ -59,6 +60,32 @@ export type SupportingTextOptions = {
 
 export type EventFromInputType = Event & {
     currentTarget: EventTarget & HTMLInputElement,
+}
+
+export type obtainInputReferenceType = {
+    needReference: true,
+    customComponentEventName?: string
+} | {
+    needReference: false
+}
+
+type DefinitionCusAttr = {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    [x:string]:any
+}
+
+export type customAttributesType = {
+    parentContainer?: DefinitionCusAttr,
+    label?: DefinitionCusAttr
+    input?: Exclude<DefinitionCusAttr , "type">
+}
+
+
+export type readonlyOptionsType = {
+    readOnlyCondition:false
+} | {
+    readOnlyCondition:true,
+    initialVal?:string
 }
 
 

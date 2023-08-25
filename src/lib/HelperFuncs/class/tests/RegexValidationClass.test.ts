@@ -72,3 +72,13 @@ describe("PasswordFromRegexValidator",() => {
 
     itClauseBoilerPlate("Matches one more character type","!@SDsd12",true,"password")
 })
+
+
+describe("URLTest",() => {
+    itClauseBoilerPlate("Not valid URL without https: and www.","google.com",false,"url")
+    itClauseBoilerPlate("Not valid URL without www.","https://google.com",false,"url")
+
+    itClauseBoilerPlate("Not valid without domain and address part","https://www.",false,"url")
+    itClauseBoilerPlate("Valid URL","https://www.google.com",true,"url")
+    
+})

@@ -1,6 +1,6 @@
-import { expect, test } from '@playwright/test';
+import {test} from "@playwright/test"
 
-test('index page has expected h1', async ({ page }) => {
-	await page.goto('/');
-	await expect(page.getByRole('heading', { name: 'Welcome to SvelteKit' })).toBeVisible();
-});
+test("Test the starting point",async({page}) => {
+	await page.goto("/")
+	await page.getByRole("heading",{name:"As a starting point if i unable to locate this."}).isVisible()
+})

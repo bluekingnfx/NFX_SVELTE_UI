@@ -1,4 +1,6 @@
 import type { Action } from "svelte/action"
+import type { readonlyOptionsType } from "../types/TextFieldInputTypes.js"
+import type { ThemeType } from "$lib/global/stores/colorPalette.js"
 
 
 
@@ -9,9 +11,18 @@ const inputEvents:Action<HTMLInputElement,{
     valueForInternalAccess:string,
     placeHolder:string,
     parentRef:HTMLDivElement | undefined | null,
+    readOnlyOptions:readonlyOptionsType,
+    textColorDark:string,
+    textColorLight:string,
+    theme:ThemeType,
+    textPassedBlueVariant:string,
+    textPassedBlueVariantBorder:string,
+    borderColorDark:string,
+    borderColorLight:string
 }> = (
     node,
-    {CusError,labelHeightFromTop,labelRef_Global,placeHolder,valueForInternalAccess,parentRef}
+    {CusError,labelHeightFromTop,labelRef_Global,placeHolder,valueForInternalAccess,parentRef,readOnlyOptions,textColorDark,textColorLight,theme,textPassedBlueVariant,textPassedBlueVariantBorder,borderColorDark,
+    borderColorLight}
 ) => {
     
     let error:boolean = CusError
@@ -26,6 +37,21 @@ const inputEvents:Action<HTMLInputElement,{
 
     let parentRefLoc:HTMLDivElement | undefined | null = parentRef
 
+    let readOnlyOptions_Loc:readonlyOptionsType = readOnlyOptions
+
+    let theme_Loc:ThemeType = theme
+    
+    let textColorDark_Loc:string = textColorDark
+
+    let textColorLight_Loc:string = textColorLight
+
+    let textPassedBlueVariant_loc:string = textPassedBlueVariant
+
+    let textPassedBlueVariantBorder_loc = textPassedBlueVariantBorder
+
+    let borderColorDark_Loc:string = borderColorDark
+
+    let borderColorLight_Loc:string = borderColorLight
 
     const onFocus = () => {
 
@@ -37,13 +63,13 @@ const inputEvents:Action<HTMLInputElement,{
 
         labelRef.style.letterSpacing = ".1px"
 
-        labelRef.style.top = `${6}px`
+        labelRef.style.top = `${8}px`
 
-        if(error === false){
+        if(error === false && readOnlyOptions_Loc.readOnlyCondition === false){
 
-            labelRef.style.color = "#0072E5"
+            labelRef.style.color = textPassedBlueVariant_loc
 
-            parentRefLoc.style.borderBottom = "2px solid #0072E5"
+            parentRefLoc.style.borderBottom = `2px solid  ${textPassedBlueVariantBorder_loc}`
         }
 
         if(value.length === 0){
@@ -55,6 +81,10 @@ const inputEvents:Action<HTMLInputElement,{
 
 
     const onFocusOut = () => {
+
+        if(readOnlyOptions_Loc.readOnlyCondition === true){
+            return
+        }
 
         if(!labelRef || !parentRefLoc) return 
 
@@ -68,9 +98,9 @@ const inputEvents:Action<HTMLInputElement,{
 
             labelRef.style.top = `${labelHeightFromTop_Loc}px`
 
-            labelRef.style.color = "#c4c4c4"
+            labelRef.style.color = theme_Loc === "dark" ? textColorDark_Loc : textColorLight_Loc
 
-            parentRefLoc.style.borderBottom = "2px solid #c4c4c4"
+            parentRefLoc.style.borderBottom = `2px solid ${theme_Loc === "dark" ? borderColorDark_Loc: borderColorLight_Loc}`
         }
     }
 
@@ -92,6 +122,22 @@ const inputEvents:Action<HTMLInputElement,{
             labelRef = new_props.labelRef_Global
 
             parentRefLoc = new_props.parentRef
+
+            readOnlyOptions_Loc = new_props.readOnlyOptions
+
+            textColorDark_Loc = new_props.textColorDark
+
+            textColorLight_Loc = new_props.textColorLight
+
+            theme_Loc = new_props.theme
+        
+            textPassedBlueVariantBorder_loc = new_props.textPassedBlueVariantBorder
+
+            textPassedBlueVariant_loc = new_props.textPassedBlueVariant,
+            
+            borderColorDark_Loc = new_props.borderColorDark
+
+            borderColorLight_Loc = new_props.borderColorLight
         },
 
         destroy(){
